@@ -2,6 +2,7 @@ package com.coolweather.android;
 
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -17,7 +18,7 @@ import android.widget.Toast;
 import com.coolweather.android.db.City;
 import com.coolweather.android.db.County;
 import com.coolweather.android.db.Province;
-import com.coolweather.android.util.HttpUitl;
+import com.coolweather.android.util.HttpUtil;
 import com.coolweather.android.util.Utility;
 
 import org.litepal.crud.DataSupport;
@@ -25,7 +26,6 @@ import org.litepal.crud.DataSupport;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -72,7 +72,7 @@ public class ChooseAreaFrament extends Fragment {
         titleText = (TextView) view.findViewById(R.id.title_text);
         backButton = (Button) view.findViewById(R.id.back_button);
         listView = (ListView) view.findViewById(R.id.list_view);
-        adapter = new ArrayAdapter<String>(getContext(),
+        adapter = new ArrayAdapter<>(getContext(),
                 android.R.layout.simple_list_item_1,dataList);
         listView.setAdapter(adapter);
         return view;
@@ -90,6 +90,12 @@ public class ChooseAreaFrament extends Fragment {
                 } else if (currentLevel == LEVEL_CITY) {
                     selectedCity = cityList.get(position);
                     queryCounty();
+                }else if (currentLevel == LEVEL_COUNTY){
+                    String weatherId = countyList.get(position).getWeatherId();
+                    Intent intent = new Intent(getActivity(),WeatherActivity.class);
+                    intent.putExtra("weather_id",weatherId);
+                    startActivity(intent);
+                    getActivity().finish();
                 }
             }
         });
@@ -181,7 +187,7 @@ public class ChooseAreaFrament extends Fragment {
 
     private void queryFromServer(String address, final String type) {
         showProgressDialog();
-        HttpUitl.sendOkHttpRequest(address, new Callback() {
+        HttpUtil.sendOkHttpRequest(address, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 //通过runOnUiThread（）方法返回到主线程处理逻辑
@@ -244,5 +250,7 @@ public class ChooseAreaFrament extends Fragment {
         }
         progressDialog.show();
     }
+
+
 
 }
